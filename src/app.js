@@ -10,6 +10,9 @@ import {
   crearTarea,
   cambiarEstado,
   eliminarTarea,
+  buscarTareaPorId,
+  modificarTareaPorId,
+  eliminarTareaPorId,
   suscribirseATareas,
   cancelarSuscripcion
 } from './services/taskService.js'
@@ -25,7 +28,8 @@ import {
   configurarTasksView,
   mostrarTareas,
   mostrarCargandoTareas,
-  limpiarFormularioTarea
+  limpiarFormularioTarea,
+  mostrarResultadoRls
 } from './views/tasksView.js'
 
 import {
@@ -69,6 +73,7 @@ function mostrarPantallaLogin(
 ) {
   usuarioActual = null
 
+
   mostrarLoginView({
     mensaje
   })
@@ -86,12 +91,19 @@ async function mostrarPantallaTareas(
 ) {
   usuarioActual = user
 
+
   mostrarTasksView(user)
 
 
   configurarTasksView({
     onCrear: manejarCrearTarea,
-    onLogout: manejarLogout
+    onLogout: manejarLogout,
+    onBuscarPorId:
+      manejarBuscarTareaPorId,
+    onModificarPorId:
+      manejarModificarTareaPorId,
+    onEliminarPorId:
+      solicitarEliminarTareaPorId
   })
 
 
@@ -100,6 +112,10 @@ async function mostrarPantallaTareas(
   await activarRealtime()
 }
 
+
+// ==========================================
+// AUTH
+// ==========================================
 
 async function manejarLogin({
   email,
@@ -211,6 +227,10 @@ async function manejarLogout() {
 }
 
 
+// ==========================================
+// CRUD NORMAL
+// ==========================================
+
 async function cargarTareas() {
   mostrarCargandoTareas()
 
@@ -275,7 +295,7 @@ async function manejarCrearTarea({
 
   limpiarFormularioTarea()
 
-  // Realtime actualizará la lista.
+  // Realtime actualiza la lista.
 }
 
 
@@ -302,10 +322,6 @@ async function manejarCambioEstado({
       error
     )
   }
-
-  // RLS determina si la tarea
-  // puede ser modificada.
-  // Realtime actualizará la lista.
 }
 
 
@@ -322,11 +338,6 @@ function solicitarEliminarTarea(id) {
     onConfirmar:
       async () => {
 
-        if (!usuarioActual) {
-          return
-        }
-
-
         const {
           error
         } = await eliminarTarea(id)
@@ -338,14 +349,171 @@ function solicitarEliminarTarea(id) {
             error
           )
         }
-
-        // RLS determina si la tarea
-        // puede ser eliminada.
-        // Realtime actualizará la lista.
       }
   })
 }
 
+
+// ==========================================
+// PRUEBAS EDUCATIVAS DE RLS
+// ==========================================
+
+async function manejarBuscarTareaPorId(id) {
+
+  mostrarResultadoRls(
+    `Buscando tarea con ID ${id}...`
+  )
+
+
+  const {
+    data,
+    error
+  } = await buscarTareaPorId(id)
+
+
+  if (error) {
+
+    mostrarResultadoRls(
+      'Error: ' + error.message,
+      'error'
+    )
+
+    return
+  }
+
+
+  if (!data || data.length === 0) {
+
+    mostrarResultadoRls(
+      `No se encontró la tarea ${id} o no tienes permiso para verla.`,
+      'blocked'
+    )
+
+    return
+  }
+
+
+  const tarea = data[0]
+
+
+  mostrarResultadoRls(
+    `Acceso permitido. ID: ${tarea.id} | Título: ${tarea.title} | Prioridad: ${tarea.priority}`,
+    'success'
+  )
+}
+
+
+async function manejarModificarTareaPorId(
+  id,
+  nuevoTitulo
+) {
+
+  mostrarResultadoRls(
+    `Intentando modificar la tarea ${id}...`
+  )
+
+
+  const {
+    data,
+    error
+  } = await modificarTareaPorId(
+    id,
+    nuevoTitulo
+  )
+
+
+  if (error) {
+
+    mostrarResultadoRls(
+      'Error: ' + error.message,
+      'error'
+    )
+
+    return
+  }
+
+
+  if (!data || data.length === 0) {
+
+    mostrarResultadoRls(
+      `La tarea ${id} no existe o RLS impidió modificarla.`,
+      'blocked'
+    )
+
+    return
+  }
+
+
+  mostrarResultadoRls(
+    `Tarea ${id} modificada correctamente.`,
+    'success'
+  )
+}
+
+
+function solicitarEliminarTareaPorId(id) {
+
+  mostrarConfirmacion({
+    titulo:
+      'Prueba de eliminación RLS',
+
+    mensaje:
+      `Se intentará eliminar directamente la tarea con ID ${id}.`,
+
+    textoConfirmar:
+      'Intentar eliminar',
+
+    onConfirmar:
+      async () => {
+
+        mostrarResultadoRls(
+          `Intentando eliminar la tarea ${id}...`
+        )
+
+
+        const {
+          data,
+          error
+        } = await eliminarTareaPorId(id)
+
+
+        if (error) {
+
+          mostrarResultadoRls(
+            'Error: ' + error.message,
+            'error'
+          )
+
+          return
+        }
+
+
+        if (
+          !data ||
+          data.length === 0
+        ) {
+
+          mostrarResultadoRls(
+            `La tarea ${id} no existe o RLS impidió eliminarla.`,
+            'blocked'
+          )
+
+          return
+        }
+
+
+        mostrarResultadoRls(
+          `Tarea ${id} eliminada correctamente.`,
+          'success'
+        )
+      }
+  })
+}
+
+
+// ==========================================
+// REALTIME
+// ==========================================
 
 async function activarRealtime() {
   await detenerRealtime()

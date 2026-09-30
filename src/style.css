@@ -366,3 +366,156 @@ button {
     flex: 1;
   }
 }
+
+/* =========================================
+   PANEL EDUCATIVO RLS
+========================================= */
+
+.rls-panel {
+  margin-top: 25px;
+}
+
+.rls-header {
+  display: flex;
+
+  justify-content: space-between;
+  align-items: flex-start;
+
+  gap: 20px;
+
+  margin-bottom: 20px;
+}
+
+.rls-header h2 {
+  margin: 0 0 8px 0;
+}
+
+.rls-header p {
+  margin: 0;
+
+  color: #cbd5e1;
+
+  line-height: 1.5;
+}
+
+.rls-badge {
+  padding: 7px 12px;
+
+  border:
+    1px solid #64748b;
+
+  border-radius: 20px;
+
+  font-size: 12px;
+  font-weight: bold;
+
+  white-space: nowrap;
+}
+
+.rls-warning {
+  padding: 15px;
+
+  margin-bottom: 20px;
+
+  background: #111827;
+
+  border:
+    1px solid #374151;
+
+  border-radius: 8px;
+
+  color: #cbd5e1;
+
+  line-height: 1.5;
+}
+
+.rls-buttons {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 10px;
+
+  margin-bottom: 10px;
+}
+
+.rls-buttons button {
+  width: auto;
+}
+
+.rls-modificar {
+  margin-top: 20px;
+
+  padding-top: 20px;
+
+  border-top:
+    1px solid #374151;
+}
+
+.rls-result-container {
+  margin-top: 25px;
+}
+
+.rls-result-container h3 {
+  margin-bottom: 10px;
+}
+
+.rls-result {
+  padding: 15px;
+
+  min-height: 50px;
+
+  background: #111827;
+
+  border:
+    1px solid #374151;
+
+  border-radius: 8px;
+
+  color: #cbd5e1;
+
+  line-height: 1.5;
+}
+
+.rls-result.success {
+  border-color: #166534;
+
+  color: #bbf7d0;
+}
+
+.rls-result.blocked {
+  border-color: #92400e;
+
+  color: #fde68a;
+}
+
+.rls-result.error {
+  border-color: #991b1b;
+
+  color: #fecaca;
+}
+
+.hidden {
+  display: none;
+}
+
+
+/* ==============================
+   RESPONSIVE RLS
+============================== */
+
+@media (max-width: 700px) {
+
+  .rls-header {
+    flex-direction: column;
+  }
+
+  .rls-buttons {
+    flex-direction: column;
+  }
+
+  .rls-buttons button {
+    width: 100%;
+  }
+
+}

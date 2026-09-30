@@ -1,6 +1,10 @@
 import { supabase } from '../config/supabase.js'
 
 
+// ==========================================
+// CRUD NORMAL DE TAREAS
+// ==========================================
+
 export async function obtenerTareas() {
   const { data, error } = await supabase
     .from('tasks')
@@ -62,16 +66,72 @@ export async function cambiarEstado(
 
 
 export async function eliminarTarea(id) {
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('tasks')
     .delete()
     .eq('id', id)
+    .select()
 
   return {
+    data,
     error
   }
 }
 
+
+// ==========================================
+// PRUEBAS EDUCATIVAS DE RLS POR ID
+// ==========================================
+
+export async function buscarTareaPorId(id) {
+  const { data, error } = await supabase
+    .from('tasks')
+    .select('*')
+    .eq('id', id)
+
+  return {
+    data,
+    error
+  }
+}
+
+
+export async function modificarTareaPorId(
+  id,
+  nuevoTitulo
+) {
+  const { data, error } = await supabase
+    .from('tasks')
+    .update({
+      title: nuevoTitulo
+    })
+    .eq('id', id)
+    .select()
+
+  return {
+    data,
+    error
+  }
+}
+
+
+export async function eliminarTareaPorId(id) {
+  const { data, error } = await supabase
+    .from('tasks')
+    .delete()
+    .eq('id', id)
+    .select()
+
+  return {
+    data,
+    error
+  }
+}
+
+
+// ==========================================
+// REALTIME
+// ==========================================
 
 export function suscribirseATareas(onCambio) {
   const canal = supabase
