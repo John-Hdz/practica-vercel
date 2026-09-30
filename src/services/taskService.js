@@ -44,8 +44,7 @@ export async function crearTarea({
 
 export async function cambiarEstado(
   id,
-  estadoActual,
-  userId
+  estadoActual
 ) {
   const { data, error } = await supabase
     .from('tasks')
@@ -53,7 +52,6 @@ export async function cambiarEstado(
       completed: !estadoActual
     })
     .eq('id', id)
-    .eq('user_id', userId)
     .select()
 
   return {
@@ -63,15 +61,11 @@ export async function cambiarEstado(
 }
 
 
-export async function eliminarTarea(
-  id,
-  userId
-) {
+export async function eliminarTarea(id) {
   const { error } = await supabase
     .from('tasks')
     .delete()
     .eq('id', id)
-    .eq('user_id', userId)
 
   return {
     error

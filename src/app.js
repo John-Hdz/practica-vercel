@@ -292,8 +292,7 @@ async function manejarCambioEstado({
     error
   } = await cambiarEstado(
     id,
-    estadoActual,
-    usuarioActual.id
+    estadoActual
   )
 
 
@@ -304,6 +303,8 @@ async function manejarCambioEstado({
     )
   }
 
+  // RLS determina si la tarea
+  // puede ser modificada.
   // Realtime actualizará la lista.
 }
 
@@ -328,10 +329,7 @@ function solicitarEliminarTarea(id) {
 
         const {
           error
-        } = await eliminarTarea(
-          id,
-          usuarioActual.id
-        )
+        } = await eliminarTarea(id)
 
 
         if (error) {
@@ -341,6 +339,8 @@ function solicitarEliminarTarea(id) {
           )
         }
 
+        // RLS determina si la tarea
+        // puede ser eliminada.
         // Realtime actualizará la lista.
       }
   })
