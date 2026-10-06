@@ -5,18 +5,15 @@ import { supabase } from '../config/supabase.js'
 // CRUD NORMAL DE TAREAS
 // ==========================================
 
+// REEMPLAZAR función obtenerTareas en src/services/taskService.js
 export async function obtenerTareas() {
+  // Supabase RLS aplicará automáticamente el filtro de propiedad O compartición
   const { data, error } = await supabase
     .from('tasks')
     .select('*')
-    .order('id', {
-      ascending: true
-    })
+    .order('id', { ascending: false });
 
-  return {
-    data,
-    error
-  }
+  return { data, error };
 }
 
 
@@ -133,30 +130,24 @@ export async function eliminarTareaPorId(id) {
 // REALTIME
 // ==========================================
 
+// REEMPLAZAR la función suscribirseATareas en src/services/taskService.js
 export function suscribirseATareas(onCambio) {
   const canal = supabase
-    .channel('cambios-tasks')
+    .channel('cambios-tasks-public')
     .on(
       'postgres_changes',
       {
-        event: '*',
+        event: '*', // Escucha INSERT, UPDATE y DELETE
         schema: 'public',
         table: 'tasks'
       },
-      payload => {
-        console.log(
-          'Cambio Realtime:',
-          payload
-        )
-
+      (payload) => {
+        console.log('Cambio Realtime detectado:', payload)
         onCambio(payload)
       }
     )
-    .subscribe(status => {
-      console.log(
-        'Estado Realtime:',
-        status
-      )
+    .subscribe((status) => {
+      console.log('Estado Realtime:', status)
     })
 
   return canal
@@ -171,4 +162,13 @@ export async function cancelarSuscripcion(
   }
 
   await supabase.removeChannel(canal)
+}
+
+// Función agregada al final para la Actividad 3
+export async function compartirTarea(taskId, userId, permission = 'ver_modificar') {
+  const { data, error } = await supabase
+    .from('task_shares')
+    .insert([{ task_id: taskId, user_id: userId, permission }]);
+
+  return { data, error };
 }
